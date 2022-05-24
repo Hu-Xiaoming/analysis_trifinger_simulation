@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>trifinger_simulation.camera &mdash; TriFinger Robot Simulation 1.3.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> TriFinger Robot Simulation
+          </a>
+              <div class="version">
+                1.3.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/first_steps.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/finger_types.html">Finger Types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Ease of Use with a Real Robot</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/simwithreal.html">Simulation vs Real Robot in trifinger_simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/realwithsim.html">Simulation vs Real Robot in the Real Robot API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/simvsreal.html">Differences between Simulation and Real Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/timesteplogic.html">Time Relation of Actions and Observations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/sim_finger.html">The SimFinger Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/trifingerplatform.html">The TriFingerPlatform Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/collision_objects.html">Module collision_objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/visual_objects.html">Module visual_objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/camera.html">Module camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pinocchio_utils.html">Module pinocchio_utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/finger_types_data.html">Module finger_types_data</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TriFinger Robot Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>trifinger_simulation.camera</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for trifinger_simulation.camera</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Classes and functions for simulating cameras.</span>
+
+
+<span class="sd">Simple vs Calibrated Camera</span>
+<span class="sd">---------------------------</span>
+
+<span class="sd">There are two different camera implementations: :class:`Camera` and</span>
+<span class="sd">:class:`CalibratedCamera`.</span>
+
+<span class="sd">:class:`Camera` first one only takes the camera&#39;s position, orientation and</span>
+<span class="sd">field of view as input and uses PyBullet functions to compute the corresponding</span>
+<span class="sd">transformation/projection from it.</span>
+
+<span class="sd">:class:`CalibratedCamera` expects a full camera matrix and distortion</span>
+<span class="sd">coefficients (like they are acquired through camera calibration.  By using the</span>
+<span class="sd">calibration parameters of a real camera here, the rendered images are much</span>
+<span class="sd">closer to the real ones.  On the downside the rendering process is a bit slower</span>
+<span class="sd">as applying the distortion takes some time.</span>
+
+<span class="sd">Loading calibration parameters from a single YAML file can be done using</span>
+<span class="sd">:meth:`CameraParameters.load`.  To load the calibration parameters of all three</span>
+<span class="sd">cameras of a TriFinger platform, :func:`load_camera_parameters` can be used.</span>
+
+
+<span class="sd">Camera Arrays</span>
+<span class="sd">-------------</span>
+
+<span class="sd">:class:`CameraArray` provides a simple interface to get images from an</span>
+<span class="sd">arbitrary number of cameras.</span>
+
+<span class="sd">When specifically simulating the three-camera-setup of the TriFinger platform,</span>
+<span class="sd">you can use :class:`TriFingerCameras` for the simple camera model or</span>
+<span class="sd">:func:`create_trifinger_camera_array_from_config` for the model using the full</span>
+<span class="sd">calibration parameters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pybullet</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial.transform</span> <span class="kn">import</span> <span class="n">Rotation</span>
+
+
+<div class="viewcode-block" id="calib_data_to_matrix"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.calib_data_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">calib_data_to_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Extract a matrix from a camera parameter dict (as loaded from YAML).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rows&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cols&quot;</span><span class="p">])</span></div>
+
+
+<span class="c1"># TODO: this is more or less a duplicate of trifinger_cameras/CameraParameters</span>
+<div class="viewcode-block" id="CameraParameters"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CameraParameters">[docs]</a><span class="k">class</span> <span class="nc">CameraParameters</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents intrinsic and extrinsic parameters of a camera.</span>
+
+<span class="sd">    See description of properties for the meaning of the constructor arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Name of the camera.</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1">#: Width of the images.</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1">#: Height of the images.</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="c1">#: Camera projection matrix.  Shape = (3, 3)</span>
+    <span class="n">camera_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="c1">#: Distortion coefficients.  Shape = (5,)</span>
+    <span class="n">distortion_coefficients</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="c1">#: Transformation matrix from world to camera frame.  Shape = (4, 4)</span>
+    <span class="n">tf_world_to_camera</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+
+<div class="viewcode-block" id="CameraParameters.load"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CameraParameters.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TextIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CameraParameters&quot;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load camera parameters from a YAML stream.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stream: Input stream of configuration in YAML format.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Instance of CameraParameters with values set based on the input</span>
+<span class="sd">            YAML.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;camera_name&quot;</span><span class="p">]</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;image_width&quot;</span><span class="p">]</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;image_height&quot;</span><span class="p">]</span>
+        <span class="n">camera_matrix</span> <span class="o">=</span> <span class="n">calib_data_to_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;camera_matrix&quot;</span><span class="p">])</span>
+        <span class="n">dist_coeffs</span> <span class="o">=</span> <span class="n">calib_data_to_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;distortion_coefficients&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tf_world_to_camera</span> <span class="o">=</span> <span class="n">calib_data_to_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tf_world_to_camera&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">camera_matrix</span><span class="p">,</span> <span class="n">dist_coeffs</span><span class="p">,</span> <span class="n">tf_world_to_camera</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="CameraParameters.dump"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CameraParameters.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">TextIO</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump camera parameters in YAML format to the given output stream.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stream: Output stream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># save all the data</span>
+        <span class="n">calibration_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;camera_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="c1"># make sure width and height are plain strings (not numpy.int64 or</span>
+            <span class="c1"># the like)</span>
+            <span class="s2">&quot;image_width&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span>
+            <span class="s2">&quot;image_height&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">calibration_data</span><span class="p">[</span><span class="s2">&quot;camera_matrix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;cols&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_matrix</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="n">calibration_data</span><span class="p">[</span><span class="s2">&quot;distortion_coefficients&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;cols&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">distortion_coefficients</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="n">calibration_data</span><span class="p">[</span><span class="s2">&quot;tf_world_to_camera&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;cols&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tf_world_to_camera</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+            <span class="n">calibration_data</span><span class="p">,</span>
+            <span class="n">stream</span><span class="p">,</span>
+            <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">BaseCamera</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">ER_BULLET_HARDWARE_OPENGL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Camera"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.Camera">[docs]</a><span class="k">class</span> <span class="nc">Camera</span><span class="p">(</span><span class="n">BaseCamera</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a camera in the simulation environment.</span>
+
+<span class="sd">    Note:  This class uses a simplified camera model.  For images that better</span>
+<span class="sd">    match with the real cameras, use ``CalibratedCamera``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">camera_position</span><span class="p">,</span>
+        <span class="n">camera_orientation</span><span class="p">,</span>
+        <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="mi">270</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span>
+        <span class="n">field_of_view</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span>
+        <span class="n">near_plane_distance</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+        <span class="n">far_plane_distance</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+        <span class="n">pybullet_client_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            camera_position:  Position (x, y, z) of the camera w.r.t. the world</span>
+<span class="sd">                frame.</span>
+<span class="sd">            camera_orientation:  Quaternion (x, y, z, w) representing the</span>
+<span class="sd">                orientation of the camera.</span>
+<span class="sd">            image_size:  Tuple (width, height) specifying the size of the</span>
+<span class="sd">                image.</span>
+<span class="sd">            field_of_view: Field of view of the camera</span>
+<span class="sd">            near_plane_distance: see OpenGL&#39;s documentation for details</span>
+<span class="sd">            far_plane_distance: see OpenGL&#39;s documentation for details</span>
+<span class="sd">            target_position: where should the camera be pointed at</span>
+<span class="sd">            camera_up_vector: the up axis of the camera</span>
+<span class="sd">            pybullet_client_id:  Id of the pybullet client (needed when</span>
+<span class="sd">                multiple clients are running in parallel).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span> <span class="o">=</span> <span class="n">pybullet_client_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">camera_rot</span> <span class="o">=</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">from_quat</span><span class="p">(</span><span class="n">camera_orientation</span><span class="p">)</span>
+        <span class="n">target_position</span> <span class="o">=</span> <span class="n">camera_rot</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">camera_up_vector</span> <span class="o">=</span> <span class="n">camera_rot</span><span class="o">.</span><span class="n">apply</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_view_matrix</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">computeViewMatrix</span><span class="p">(</span>
+            <span class="n">cameraEyePosition</span><span class="o">=</span><span class="n">camera_position</span><span class="p">,</span>
+            <span class="n">cameraTargetPosition</span><span class="o">=</span><span class="n">target_position</span><span class="p">,</span>
+            <span class="n">cameraUpVector</span><span class="o">=</span><span class="n">camera_up_vector</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proj_matrix</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">computeProjectionMatrixFOV</span><span class="p">(</span>
+            <span class="n">fov</span><span class="o">=</span><span class="n">field_of_view</span><span class="p">,</span>
+            <span class="n">aspect</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">,</span>
+            <span class="n">nearVal</span><span class="o">=</span><span class="n">near_plane_distance</span><span class="p">,</span>
+            <span class="n">farVal</span><span class="o">=</span><span class="n">far_plane_distance</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Camera.get_image"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.Camera.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">ER_BULLET_HARDWARE_OPENGL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get a rendered image from the camera.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            renderer: Specify which renderer is to be used. The renderer used</span>
+<span class="sd">                by default relies on X server. Note: this would need</span>
+<span class="sd">                visualization to have access to OpenGL. In order to use the</span>
+<span class="sd">                renderer without visualization, as in, in the &quot;DIRECT&quot; mode of</span>
+<span class="sd">                connection, use the ER_TINY_RENDERER.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array, shape=(height, width, 3):  Rendered RGB image from the</span>
+<span class="sd">            simulated camera.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">getCameraImage</span><span class="p">(</span>
+            <span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">,</span>
+            <span class="n">viewMatrix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_view_matrix</span><span class="p">,</span>
+            <span class="n">projectionMatrix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_proj_matrix</span><span class="p">,</span>
+            <span class="n">renderer</span><span class="o">=</span><span class="n">renderer</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># remove the alpha channel</span>
+        <span class="k">return</span> <span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="CalibratedCamera"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CalibratedCamera">[docs]</a><span class="k">class</span> <span class="nc">CalibratedCamera</span><span class="p">(</span><span class="n">BaseCamera</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simulate a camera based on calibration parameters.</span>
+
+<span class="sd">    This class renders images from the simulation, using calibration parameters</span>
+<span class="sd">    from a real camera.  It uses a more accurate projection matrix as</span>
+<span class="sd">    ``Camera`` and also takes distortion into account.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># How this class works internally</span>
+    <span class="c1"># ===============================</span>
+    <span class="c1">#</span>
+    <span class="c1"># The &quot;projection&quot; and &quot;view&quot; matrices required by pyBullet are computed in</span>
+    <span class="c1"># __init__ based on the given camera_matrix and tf_world_to_camera.</span>
+    <span class="c1">#</span>
+    <span class="c1"># The distortion cannot be directly integrated there, so it is applied</span>
+    <span class="c1"># after rendering, using the given distortion_coefficients.</span>
+    <span class="c1">#</span>
+    <span class="c1"># When distorting the rendered image, there is the problem that the images</span>
+    <span class="c1"># shrinks a bit, that is, when the size of the image should be preserved,</span>
+    <span class="c1"># some pixels close to the edge will be empty.</span>
+    <span class="c1"># To avoid this, some padding is added for the rendering, i.e.  the</span>
+    <span class="c1"># rendered image is a bit larger then the desired output.  After</span>
+    <span class="c1"># distortion, the padding is removed again, so that the resulting image has</span>
+    <span class="c1"># the desired size.</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">camera_matrix</span><span class="p">,</span>
+        <span class="n">distortion_coefficients</span><span class="p">,</span>
+        <span class="n">tf_world_to_camera</span><span class="p">,</span>
+        <span class="n">image_size</span><span class="p">,</span>
+        <span class="n">near_plane_distance</span><span class="p">,</span>
+        <span class="n">far_plane_distance</span><span class="p">,</span>
+        <span class="n">pybullet_client_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            camera_matrix:  Camera matrix containing focal length and centre</span>
+<span class="sd">                point:</span>
+
+<span class="sd">                .. math::</span>
+
+<span class="sd">                    \begin{bmatrix}</span>
+<span class="sd">                      f_x &amp;  0  &amp; c_x \\</span>
+<span class="sd">                       0  &amp; f_y &amp; c_y \\</span>
+<span class="sd">                       0  &amp;  0  &amp;  0</span>
+<span class="sd">                    \end{bmatrix}</span>
+
+<span class="sd">            distortion_coefficients:  Distortion coefficients</span>
+<span class="sd">                ``(k_1, k_2, p_1, p_2, k_3)``</span>
+<span class="sd">            tf_world_to_camera:  Homogeneous transformation matrix from world</span>
+<span class="sd">                to camera frame.</span>
+<span class="sd">            image_size:  Size of the image given as ``(width, height)``.</span>
+<span class="sd">            near_plane_distance:  Minimum distance to camera for objects to be</span>
+<span class="sd">                rendered.  Objects that are closer to the camera are clipped.</span>
+<span class="sd">            far_plane_distance:  Maximum distance to the camera for objects to</span>
+<span class="sd">                be rendered.  Objects that are further away are clipped.</span>
+<span class="sd">            pybullet_client_id:  Id of the pybullet client (needed when</span>
+<span class="sd">                multiple clients are running in parallel).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span> <span class="o">=</span> <span class="n">pybullet_client_id</span>
+
+        <span class="c1">#: Width of the output images.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_width</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1">#: Height of the output images</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_height</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Padding that is added to the rendered image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_width</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">),</span>
+            <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_height</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># size of the rendered (undistorted) image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_height</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># adjust the centre point in the camera matrix to the padding</span>
+        <span class="n">center_offset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span> <span class="o">=</span> <span class="n">camera_matrix</span> <span class="o">+</span> <span class="n">center_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distortion_coefficients</span> <span class="o">=</span> <span class="n">distortion_coefficients</span>
+
+        <span class="c1"># In OpenGL the camera is looking into negative z-direction, so we need</span>
+        <span class="c1"># to rotate the camera pose by 180 degree around x.</span>
+        <span class="n">rot_x_180</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">tf_mat</span> <span class="o">=</span> <span class="n">rot_x_180</span> <span class="o">@</span> <span class="n">tf_world_to_camera</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_view_matrix</span> <span class="o">=</span> <span class="n">tf_mat</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">)</span>
+
+        <span class="c1"># pyBullet&#39;s computeProjectionMatrix() makes some simplifying</span>
+        <span class="c1"># assumptions (f_x == f_y, c_x, c_y = image_size / 2) which are not</span>
+        <span class="c1"># generally true.  Therefore compute the projection matrix manually.</span>
+        <span class="c1">#</span>
+        <span class="c1"># https://stackoverflow.com/a/60450420/2095383</span>
+        <span class="c1"># https://www.songho.ca/opengl/gl_projectionmatrix.html</span>
+        <span class="c1"># https://amytabb.com/ts/2019_06_28/</span>
+
+        <span class="c1"># get focal length and centre point from camera matrix</span>
+        <span class="n">f_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">f_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">c_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">c_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">x_scale</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_width</span> <span class="o">*</span> <span class="n">f_x</span>
+        <span class="n">y_scale</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span> <span class="o">*</span> <span class="n">f_y</span>
+        <span class="n">near</span> <span class="o">=</span> <span class="n">near_plane_distance</span>
+        <span class="n">far</span> <span class="o">=</span> <span class="n">far_plane_distance</span>
+
+        <span class="n">x_shift</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">c_x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_width</span>
+        <span class="n">y_shift</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c_y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span>
+        <span class="n">proj_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="p">[</span><span class="n">x_scale</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x_shift</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_scale</span><span class="p">,</span> <span class="n">y_shift</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="mi">0</span><span class="p">,</span>
+                    <span class="mi">0</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">near</span> <span class="o">+</span> <span class="n">far</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">near</span> <span class="o">-</span> <span class="n">far</span><span class="p">),</span>
+                    <span class="mi">2</span> <span class="o">*</span> <span class="n">near</span> <span class="o">*</span> <span class="n">far</span> <span class="o">/</span> <span class="p">(</span><span class="n">near</span> <span class="o">-</span> <span class="n">far</span><span class="p">),</span>
+                <span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proj_matrix</span> <span class="o">=</span> <span class="n">proj_mat</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="s2">&quot;F&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CalibratedCamera.distort_image"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CalibratedCamera.distort_image">[docs]</a>    <span class="k">def</span> <span class="nf">distort_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Distort an image based on the cameras distortion coefficients.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:  The undistorted image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The distorted image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># this function is based on the formulas from here:</span>
+        <span class="c1"># https://stackoverflow.com/a/58131157/2095383</span>
+        <span class="c1"># Computations are done on numpy arrays as much as possible for</span>
+        <span class="c1"># performance reasons.</span>
+
+        <span class="n">distorted_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="n">f_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">f_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">c_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">c_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">k_1</span><span class="p">,</span> <span class="n">k_2</span><span class="p">,</span> <span class="n">p_1</span><span class="p">,</span> <span class="n">p_2</span><span class="p">,</span> <span class="n">k_3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distortion_coefficients</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f_y</span><span class="p">,</span> <span class="n">f_x</span><span class="p">])</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">c_y</span><span class="p">,</span> <span class="n">c_x</span><span class="p">])</span>
+
+        <span class="n">image_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">(</span>
+                <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span>
+                    <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_width</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># normalize the image coordinates</span>
+        <span class="n">norm_points</span> <span class="o">=</span> <span class="p">(</span><span class="n">image_points</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="n">f</span>
+        <span class="n">norm_points_square</span> <span class="o">=</span> <span class="n">norm_points</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">norm_points_xy</span> <span class="o">=</span> <span class="n">norm_points</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># determining the radial distortion</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">norm_points_square</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">icdist</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">((</span><span class="n">k_3</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">+</span> <span class="n">k_2</span><span class="p">)</span> <span class="o">*</span> <span class="n">r2</span> <span class="o">+</span> <span class="n">k_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r2</span><span class="p">)</span>
+
+        <span class="c1"># determining the tangential distortion</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">p_2</span><span class="p">,</span> <span class="n">p_1</span><span class="p">]])</span>
+
+        <span class="n">r2_plus_2_point_sq</span> <span class="o">=</span> <span class="n">r2</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">norm_points_square</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="n">norm_points_xy</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r2_plus_2_point_sq</span>
+
+        <span class="n">distorted_points</span> <span class="o">=</span> <span class="p">(</span><span class="n">norm_points</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">*</span> <span class="n">icdist</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="c1"># un-normalise</span>
+        <span class="n">distorted_points</span> <span class="o">=</span> <span class="n">distorted_points</span> <span class="o">*</span> <span class="n">f</span> <span class="o">+</span> <span class="n">c</span>
+
+        <span class="c1"># float to int</span>
+        <span class="n">distorted_points</span> <span class="o">=</span> <span class="n">distorted_points</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># filter out points that are outside the image</span>
+        <span class="n">in_image_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">distorted_points</span><span class="p">,</span>
+                <span class="n">distorted_points</span> <span class="o">&lt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_width</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">distorted_points</span> <span class="o">=</span> <span class="n">distorted_points</span><span class="p">[</span><span class="n">in_image_idx</span><span class="p">]</span>
+        <span class="n">image_points</span> <span class="o">=</span> <span class="n">image_points</span><span class="p">[</span><span class="n">in_image_idx</span><span class="p">]</span>
+
+        <span class="c1"># finally construct the distorted image</span>
+        <span class="n">distorted_image</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">distorted_points</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">image_points</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">distorted_image</span></div>
+
+<div class="viewcode-block" id="CalibratedCamera.get_image"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CalibratedCamera.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">ER_BULLET_HARDWARE_OPENGL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Get a rendered and distorted image from the camera.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            renderer: Specify which renderer is to be used. The renderer used</span>
+<span class="sd">                by default relies on X server. Note: this would need</span>
+<span class="sd">                visualization to have access to OpenGL. In order to use the</span>
+<span class="sd">                renderer without visualization, as in, in the &quot;DIRECT&quot; mode of</span>
+<span class="sd">                connection, use the ER_TINY_RENDERER.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            array, shape=(height, width, 3):  Rendered RGB image from the</span>
+<span class="sd">            simulated camera.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">getCameraImage</span><span class="p">(</span>
+            <span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_width</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_height</span><span class="p">,</span>
+            <span class="n">viewMatrix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_view_matrix</span><span class="p">,</span>
+            <span class="n">projectionMatrix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_proj_matrix</span><span class="p">,</span>
+            <span class="n">renderer</span><span class="o">=</span><span class="n">renderer</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># remove the alpha channel</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c1"># distort image</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distort_image</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="c1"># remove the padding</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">img</span></div></div>
+
+
+<div class="viewcode-block" id="CameraArray"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CameraArray">[docs]</a><span class="k">class</span> <span class="nc">CameraArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Array of an arbitrary number of cameras.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cameras</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">BaseCamera</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            cameras: List of cameras.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cameras</span> <span class="o">=</span> <span class="n">cameras</span>
+
+<div class="viewcode-block" id="CameraArray.get_images"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CameraArray.get_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">ER_BULLET_HARDWARE_OPENGL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get images.</span>
+
+<span class="sd">        See Camera.get_image() for details.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of RGB images, one per camera.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">get_image</span><span class="p">(</span><span class="n">renderer</span><span class="o">=</span><span class="n">renderer</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cameras</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CameraArray.get_bayer_images"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.CameraArray.get_bayer_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_bayer_images</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">ER_BULLET_HARDWARE_OPENGL</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get Bayer images.</span>
+
+<span class="sd">        Same as get_images() but returning the images as BG-Bayer patterns</span>
+<span class="sd">        instead of RGB.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">rbg_to_bayer_bg</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_images</span><span class="p">(</span><span class="n">renderer</span><span class="p">)]</span></div></div>
+
+
+<div class="viewcode-block" id="create_trifinger_camera_array"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.create_trifinger_camera_array">[docs]</a><span class="k">def</span> <span class="nf">create_trifinger_camera_array</span><span class="p">(</span>
+    <span class="n">camera_parameters</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">CameraParameters</span><span class="p">],</span>
+    <span class="n">pybullet_client_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create a TriFinger camera array using camera calibration parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        camera_parameters:  List of camera calibration parameters for the three</span>
+<span class="sd">            cameras.</span>
+<span class="sd">        pybullet_client_id:  Id of the pybullet client (needed when multiple</span>
+<span class="sd">            clients are running in parallel).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        CameraArray with three cameras.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">camera_ids</span> <span class="o">=</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+
+    <span class="n">cameras</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">camera_id</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">camera_ids</span><span class="p">,</span> <span class="n">camera_parameters</span><span class="p">):</span>
+        <span class="c1"># Sanity check to verify the camera parameters are given in the correct</span>
+        <span class="c1"># order.</span>
+        <span class="n">camera_name</span> <span class="o">=</span> <span class="s2">&quot;camera</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">camera_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">camera_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Expected parameters for camera </span><span class="si">{}</span><span class="s2"> but got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">camera_name</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">image_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+        <span class="n">camera</span> <span class="o">=</span> <span class="n">CalibratedCamera</span><span class="p">(</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">camera_matrix</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">distortion_coefficients</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">tf_world_to_camera</span><span class="p">,</span>
+            <span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">,</span>
+            <span class="n">near_plane_distance</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
+            <span class="n">far_plane_distance</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+            <span class="n">pybullet_client_id</span><span class="o">=</span><span class="n">pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cameras</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">camera</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">CameraArray</span><span class="p">(</span><span class="n">cameras</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">load_camera_parameters</span><span class="p">(</span>
+    <span class="n">config_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">filename_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;camera</span><span class="si">{id}</span><span class="s2">.yml&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">CameraParameters</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="n">camera_ids</span> <span class="o">=</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_params</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_dir</span> <span class="o">/</span> <span class="n">filename_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">CameraParameters</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">camera_parameters</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">load_params</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">camera_ids</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">camera_parameters</span>
+
+
+<div class="viewcode-block" id="create_trifinger_camera_array_from_config"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.create_trifinger_camera_array_from_config">[docs]</a><span class="k">def</span> <span class="nf">create_trifinger_camera_array_from_config</span><span class="p">(</span>
+    <span class="n">config_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
+    <span class="n">calib_filename_pattern</span><span class="o">=</span><span class="s2">&quot;camera</span><span class="si">{id}</span><span class="s2">.yml&quot;</span><span class="p">,</span>
+    <span class="n">pybullet_client_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraArray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create a TriFinger camera array using camera calibration files.</span>
+
+<span class="sd">    Loads camera calibration files from the given directory and uses them to</span>
+<span class="sd">    create a :class:`CameraArray` of :class:`CalibratedCamera`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_dir:  Directory containing the camera calibration files.</span>
+<span class="sd">        calib_filename_pattern:  Template for the camera calibration file</span>
+<span class="sd">            names.  &#39;{id}&#39; will be replaced with the camera id (60, 180, 300).</span>
+<span class="sd">        pybullet_client_id:  Id of the pybullet client (needed when multiple</span>
+<span class="sd">            clients are running in parallel).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        CameraArray with three cameras.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">camera_parameters</span> <span class="o">=</span> <span class="n">load_camera_parameters</span><span class="p">(</span>
+        <span class="n">config_dir</span><span class="p">,</span> <span class="n">calib_filename_pattern</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">create_trifinger_camera_array</span><span class="p">(</span><span class="n">camera_parameters</span><span class="p">,</span> <span class="n">pybullet_client_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TriFingerCameras"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.TriFingerCameras">[docs]</a><span class="k">class</span> <span class="nc">TriFingerCameras</span><span class="p">(</span><span class="n">CameraArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simulate the three cameras of the TriFinger platform.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This uses the simple camera model (see :class:`Camera`). To get images</span>
+<span class="sd">        that are more closely matching those of the real cameras use</span>
+<span class="sd">        :func:`create_trifinger_camera_array_from_config` instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">cameras</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="c1"># camera60</span>
+            <span class="n">Camera</span><span class="p">(</span>
+                <span class="n">camera_position</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2496</span><span class="p">,</span> <span class="mf">0.2458</span><span class="p">,</span> <span class="mf">0.4190</span><span class="p">],</span>
+                <span class="n">camera_orientation</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3760</span><span class="p">,</span> <span class="mf">0.8690</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2918</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1354</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="c1"># camera180</span>
+            <span class="n">Camera</span><span class="p">(</span>
+                <span class="n">camera_position</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0047</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2834</span><span class="p">,</span> <span class="mf">0.4558</span><span class="p">],</span>
+                <span class="n">camera_orientation</span><span class="o">=</span><span class="p">[</span><span class="mf">0.9655</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0098</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0065</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2603</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="c1"># camera300</span>
+            <span class="n">Camera</span><span class="p">(</span>
+                <span class="n">camera_position</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2470</span><span class="p">,</span> <span class="mf">0.2513</span><span class="p">,</span> <span class="mf">0.3943</span><span class="p">],</span>
+                <span class="n">camera_orientation</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.3633</span><span class="p">,</span> <span class="mf">0.8686</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3141</span><span class="p">,</span> <span class="mf">0.1220</span><span class="p">],</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cameras</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rbg_to_bayer_bg"><a class="viewcode-back" href="../../api/camera.html#trifinger_simulation.camera.rbg_to_bayer_bg">[docs]</a><span class="k">def</span> <span class="nf">rbg_to_bayer_bg</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert an rgb image to a BG Bayer pattern.</span>
+
+<span class="sd">    This can be used to generate simulated raw camera data in Bayer format.</span>
+<span class="sd">    Note that there will be some loss in image quality.  It is mostly meant for</span>
+<span class="sd">    testing the full software pipeline with the same conditions as on the real</span>
+<span class="sd">    robot.  It is not optimized of realistic images.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: RGB image.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Bayer pattern based on the input image.  Height and width are the same</span>
+<span class="sd">        as of the input image.  The image can be converted using OpenCV&#39;s</span>
+<span class="sd">        `COLOR_BAYER_BG2*`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># there is only one channel but it still needs the third dimension, so that</span>
+    <span class="c1"># the conversion to a cv::Mat in C++ is easier</span>
+    <span class="n">bayer_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="c1"># channel names, assuming input is RGB</span>
+    <span class="n">CHANNEL_RED</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">CHANNEL_GREEN</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">CHANNEL_BLUE</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># channel map to get the following pattern (called &quot;BG&quot; in OpenCV):</span>
+    <span class="c1">#</span>
+    <span class="c1">#   RG</span>
+    <span class="c1">#   GB</span>
+    <span class="c1">#</span>
+    <span class="n">channel_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">CHANNEL_RED</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="n">CHANNEL_GREEN</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">CHANNEL_GREEN</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">CHANNEL_BLUE</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">channel</span> <span class="o">=</span> <span class="n">channel_map</span><span class="p">[(</span><span class="n">r</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)]</span>
+            <span class="n">bayer_img</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">channel</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">bayer_img</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Max Planck Institute for Intelligent Systems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

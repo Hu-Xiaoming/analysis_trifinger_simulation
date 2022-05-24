@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>trifinger_simulation.collision_objects &mdash; TriFinger Robot Simulation 1.3.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> TriFinger Robot Simulation
+          </a>
+              <div class="version">
+                1.3.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/first_steps.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/finger_types.html">Finger Types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Ease of Use with a Real Robot</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/simwithreal.html">Simulation vs Real Robot in trifinger_simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/realwithsim.html">Simulation vs Real Robot in the Real Robot API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/simvsreal.html">Differences between Simulation and Real Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/timesteplogic.html">Time Relation of Actions and Observations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/sim_finger.html">The SimFinger Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/trifingerplatform.html">The TriFingerPlatform Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/collision_objects.html">Module collision_objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/visual_objects.html">Module visual_objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/camera.html">Module camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pinocchio_utils.html">Module pinocchio_utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/finger_types_data.html">Module finger_types_data</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TriFinger Robot Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>trifinger_simulation.collision_objects</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for trifinger_simulation.collision_objects</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Provides classes/functions for loading objects into the simulation environment.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">pybullet</span>
+
+<span class="kn">import</span> <span class="nn">trifinger_simulation</span>
+
+
+<span class="n">_SeqFloat</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+<span class="n">_OptSeqFloat</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">_SeqFloat</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="import_mesh"><a class="viewcode-back" href="../../api/collision_objects.html#trifinger_simulation.collision_objects.import_mesh">[docs]</a><span class="k">def</span> <span class="nf">import_mesh</span><span class="p">(</span>
+    <span class="n">mesh_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">position</span><span class="p">:</span> <span class="n">_SeqFloat</span><span class="p">,</span>
+    <span class="n">orientation</span><span class="p">:</span> <span class="n">_SeqFloat</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">is_concave</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">color_rgba</span><span class="p">:</span> <span class="n">_OptSeqFloat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pybullet_client_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create a collision object based on a mesh file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mesh_file_path:  Path to the mesh file.</span>
+<span class="sd">        position:  Position (x, y, z) of the object.</span>
+<span class="sd">        orientation:  Quaternion defining the orientation of the object.</span>
+<span class="sd">        is_concave:  If set to true, the object is loaded as concav shape.</span>
+<span class="sd">            Only use this for static objects.</span>
+<span class="sd">        color_rgba:  Optional colour of the object given as a list of RGBA</span>
+<span class="sd">            values in the interval [0, 1].  If not specified, pyBullet</span>
+<span class="sd">            assigns a random colour.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ID of the created object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_concave</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">GEOM_FORCE_CONCAVE_TRIMESH</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">object_id</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">createCollisionShape</span><span class="p">(</span>
+        <span class="n">shapeType</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">GEOM_MESH</span><span class="p">,</span>
+        <span class="n">fileName</span><span class="o">=</span><span class="n">mesh_file_path</span><span class="p">,</span>
+        <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+        <span class="n">physicsClientId</span><span class="o">=</span><span class="n">pybullet_client_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">createMultiBody</span><span class="p">(</span>
+        <span class="n">baseCollisionShapeIndex</span><span class="o">=</span><span class="n">object_id</span><span class="p">,</span>
+        <span class="n">baseVisualShapeIndex</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">basePosition</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+        <span class="n">baseOrientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">,</span>
+        <span class="n">physicsClientId</span><span class="o">=</span><span class="n">pybullet_client_id</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># set colour</span>
+    <span class="k">if</span> <span class="n">color_rgba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pybullet</span><span class="o">.</span><span class="n">changeVisualShape</span><span class="p">(</span>
+            <span class="n">obj</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">rgbaColor</span><span class="o">=</span><span class="n">color_rgba</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="n">pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+
+<span class="k">class</span> <span class="nc">BaseCollisionObject</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A cuboid which can be interacted with.</span>
+
+<span class="sd">    This class only provides the set/get_state methods but doesn&#39;t actually</span>
+<span class="sd">    load any object.  So don&#39;t use this directly but use one of its child</span>
+<span class="sd">    classes.</span>
+
+<span class="sd">    Note that child classes must define an attribute ``_object_id`` with the id</span>
+<span class="sd">    of the object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pybullet_client_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            pybullet_client_id:  Optional ID of the pybullet client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span> <span class="o">=</span> <span class="n">pybullet_client_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">_SeqFloat</span><span class="p">,</span> <span class="n">orientation</span><span class="p">:</span> <span class="n">_SeqFloat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resets the object to the provided position and orientation</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position: New position.</span>
+<span class="sd">            orientation: New orientation (quaternion).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pybullet</span><span class="o">.</span><span class="n">resetBasePositionAndOrientation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Current position and orientation of the object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">position</span><span class="p">,</span> <span class="n">orientation</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">getBasePositionAndOrientation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">position</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">orientation</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes the object from the environment.&quot;&quot;&quot;</span>
+        <span class="c1"># At this point it may be that pybullet was already shut down. To avoid</span>
+        <span class="c1"># an error, only remove the object if the simulation is still running.</span>
+        <span class="k">if</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">isConnected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">):</span>
+            <span class="n">pybullet</span><span class="o">.</span><span class="n">removeBody</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Cuboid"><a class="viewcode-back" href="../../api/collision_objects.html#trifinger_simulation.collision_objects.Cuboid">[docs]</a><span class="k">class</span> <span class="nc">Cuboid</span><span class="p">(</span><span class="n">BaseCollisionObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A cuboid which can be interacted with.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">_SeqFloat</span><span class="p">,</span>
+        <span class="n">orientation</span><span class="p">:</span> <span class="n">_SeqFloat</span><span class="p">,</span>
+        <span class="n">half_extents</span><span class="p">:</span> <span class="n">_SeqFloat</span><span class="p">,</span>
+        <span class="n">mass</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">color_rgba</span><span class="p">:</span> <span class="n">_OptSeqFloat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pybullet_client_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            position: Initial xyz-position of the cuboid.</span>
+<span class="sd">            orientation: Initial orientation quaternion (x, y, z, w) of the</span>
+<span class="sd">                cuboid.</span>
+<span class="sd">            half_extents: Half-extends of the cuboid in x/y/z-direction.</span>
+<span class="sd">            mass: Mass of the cuboid in kg.  Set to 0 for a static object.</span>
+<span class="sd">            color_rgba: Optional tuple of RGBA colour.</span>
+<span class="sd">            pybullet_client_id:  Optional ID of the pybullet client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pybullet_client_id</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_id</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">createCollisionShape</span><span class="p">(</span>
+            <span class="n">shapeType</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">GEOM_BOX</span><span class="p">,</span>
+            <span class="n">halfExtents</span><span class="o">=</span><span class="n">half_extents</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># only create a visual shape if a colour was specified</span>
+        <span class="k">if</span> <span class="n">color_rgba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visual_shape_id</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">createVisualShape</span><span class="p">(</span>
+                <span class="n">shapeType</span><span class="o">=</span><span class="n">pybullet</span><span class="o">.</span><span class="n">GEOM_BOX</span><span class="p">,</span>
+                <span class="n">halfExtents</span><span class="o">=</span><span class="n">half_extents</span><span class="p">,</span>
+                <span class="n">rgbaColor</span><span class="o">=</span><span class="n">color_rgba</span><span class="p">,</span>
+                <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visual_shape_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">createMultiBody</span><span class="p">(</span>
+            <span class="n">baseCollisionShapeIndex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">block_id</span><span class="p">,</span>
+            <span class="n">baseVisualShapeIndex</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">visual_shape_id</span><span class="p">,</span>
+            <span class="n">basePosition</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">baseOrientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">,</span>
+            <span class="n">baseMass</span><span class="o">=</span><span class="n">mass</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># set dynamics of the block</span>
+        <span class="n">lateral_friction</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">spinning_friction</span> <span class="o">=</span> <span class="mf">0.001</span>
+        <span class="n">restitution</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pybullet</span><span class="o">.</span><span class="n">changeDynamics</span><span class="p">(</span>
+            <span class="n">bodyUniqueId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span><span class="p">,</span>
+            <span class="n">linkIndex</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">lateralFriction</span><span class="o">=</span><span class="n">lateral_friction</span><span class="p">,</span>
+            <span class="n">spinningFriction</span><span class="o">=</span><span class="n">spinning_friction</span><span class="p">,</span>
+            <span class="n">restitution</span><span class="o">=</span><span class="n">restitution</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Cube"><a class="viewcode-back" href="../../api/collision_objects.html#trifinger_simulation.collision_objects.Cube">[docs]</a><span class="k">class</span> <span class="nc">Cube</span><span class="p">(</span><span class="n">Cuboid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A cube object.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">_SeqFloat</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0425</span><span class="p">],</span>
+        <span class="n">orientation</span><span class="p">:</span> <span class="n">_SeqFloat</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">half_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0325</span><span class="p">,</span>
+        <span class="n">mass</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.08</span><span class="p">,</span>
+        <span class="n">color_rgba</span><span class="p">:</span> <span class="n">_OptSeqFloat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pybullet_client_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">position</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">half_width</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="n">mass</span><span class="p">,</span>
+            <span class="n">color_rgba</span><span class="o">=</span><span class="n">color_rgba</span><span class="p">,</span>
+            <span class="n">pybullet_client_id</span><span class="o">=</span><span class="n">pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<span class="c1">#: Alias of Cube</span>
+<span class="c1">#:</span>
+<span class="c1">#: .. deprecated:: 1.2.1</span>
+<span class="c1">#:    Use :class:`Cube` instead.</span>
+<span class="n">Block</span> <span class="o">=</span> <span class="n">Cube</span>
+
+
+<div class="viewcode-block" id="ColoredCubeV2"><a class="viewcode-back" href="../../api/collision_objects.html#trifinger_simulation.collision_objects.ColoredCubeV2">[docs]</a><span class="k">class</span> <span class="nc">ColoredCubeV2</span><span class="p">(</span><span class="n">BaseCollisionObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Model of the colored &quot;Cube v2&quot;.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">_SeqFloat</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">orientation</span><span class="p">:</span> <span class="n">_SeqFloat</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">pybullet_client_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            position: Position at which the cube is spawned.</span>
+<span class="sd">            orientation: Orientation with which the cube is spawned.</span>
+<span class="sd">            pybullet_client_id:  Optional ID of the pybullet client.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pybullet_client_id</span> <span class="o">=</span> <span class="n">pybullet_client_id</span>
+
+        <span class="n">cube_urdf_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">trifinger_simulation</span><span class="o">.</span><span class="n">get_data_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;cube_v2/cube_v2.urdf&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object_id</span> <span class="o">=</span> <span class="n">pybullet</span><span class="o">.</span><span class="n">loadURDF</span><span class="p">(</span>
+            <span class="n">fileName</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">cube_urdf_file</span><span class="p">),</span>
+            <span class="n">basePosition</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">baseOrientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">,</span>
+            <span class="n">physicsClientId</span><span class="o">=</span><span class="n">pybullet_client_id</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Max Planck Institute for Intelligent Systems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

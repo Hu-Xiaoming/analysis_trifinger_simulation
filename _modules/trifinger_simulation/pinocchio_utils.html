@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>trifinger_simulation.pinocchio_utils &mdash; TriFinger Robot Simulation 1.3.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> TriFinger Robot Simulation
+          </a>
+              <div class="version">
+                1.3.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/first_steps.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/finger_types.html">Finger Types</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Ease of Use with a Real Robot</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/simwithreal.html">Simulation vs Real Robot in trifinger_simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/realwithsim.html">Simulation vs Real Robot in the Real Robot API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/simvsreal.html">Differences between Simulation and Real Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simreal/timesteplogic.html">Time Relation of Actions and Observations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/sim_finger.html">The SimFinger Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/trifingerplatform.html">The TriFingerPlatform Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/collision_objects.html">Module collision_objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/visual_objects.html">Module visual_objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/camera.html">Module camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pinocchio_utils.html">Module pinocchio_utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/finger_types_data.html">Module finger_types_data</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TriFinger Robot Simulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>trifinger_simulation.pinocchio_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for trifinger_simulation.pinocchio_utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Wrappers around Pinocchio for easy forward and inverse kinematics.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pinocchio</span>
+
+
+<div class="viewcode-block" id="Kinematics"><a class="viewcode-back" href="../../api/pinocchio_utils.html#trifinger_simulation.pinocchio_utils.Kinematics">[docs]</a><span class="k">class</span> <span class="nc">Kinematics</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Forward and inverse kinematics for arbitrary Finger robots.</span>
+
+<span class="sd">    Provides forward and inverse kinematics functions for a Finger robot with</span>
+<span class="sd">    arbitrarily many independent fingers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">finger_urdf_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tip_link_names</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            finger_urdf_path:  Path to the URDF file describing the robot.</span>
+<span class="sd">            tip_link_names:  Names of the finger tip frames, one per finger.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span> <span class="o">=</span> <span class="n">pinocchio</span><span class="o">.</span><span class="n">buildModelFromUrdf</span><span class="p">(</span><span class="n">finger_urdf_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="o">.</span><span class="n">createData</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tip_link_ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="o">.</span><span class="n">getFrameId</span><span class="p">(</span><span class="n">link_name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">link_name</span> <span class="ow">in</span> <span class="n">tip_link_names</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="Kinematics.forward_kinematics"><a class="viewcode-back" href="../../api/pinocchio_utils.html#trifinger_simulation.pinocchio_utils.Kinematics.forward_kinematics">[docs]</a>    <span class="k">def</span> <span class="nf">forward_kinematics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">joint_positions</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Compute end-effector positions for the given joint configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            joint_positions:  Flat list of angular joint positions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of end-effector positions. Each position is given as an</span>
+<span class="sd">            np.array with x,y,z positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pinocchio</span><span class="o">.</span><span class="n">framesForwardKinematics</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">joint_positions</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">oMf</span><span class="p">[</span><span class="n">link_id</span><span class="p">]</span><span class="o">.</span><span class="n">translation</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">link_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tip_link_ids</span>
+        <span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_inverse_kinematics_step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">frame_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">xdes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">q0</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Compute one IK iteration for a single finger.&quot;&quot;&quot;</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.0e-1</span>
+        <span class="n">pinocchio</span><span class="o">.</span><span class="n">computeJointJacobians</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">q0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">pinocchio</span><span class="o">.</span><span class="n">framesForwardKinematics</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">q0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">Ji</span> <span class="o">=</span> <span class="n">pinocchio</span><span class="o">.</span><span class="n">getFrameJacobian</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">frame_id</span><span class="p">,</span>
+            <span class="n">pinocchio</span><span class="o">.</span><span class="n">ReferenceFrame</span><span class="o">.</span><span class="n">LOCAL_WORLD_ALIGNED</span><span class="p">,</span>
+        <span class="p">)[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">xcurrent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">oMf</span><span class="p">[</span><span class="n">frame_id</span><span class="p">]</span><span class="o">.</span><span class="n">translation</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Jinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Ji</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">Jinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Ji</span><span class="p">)</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">xdes</span> <span class="o">-</span> <span class="n">xcurrent</span>
+        <span class="n">dq</span> <span class="o">=</span> <span class="n">Jinv</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">xdes</span> <span class="o">-</span> <span class="n">xcurrent</span><span class="p">)</span>
+        <span class="n">qnext</span> <span class="o">=</span> <span class="n">pinocchio</span><span class="o">.</span><span class="n">integrate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_model</span><span class="p">,</span> <span class="n">q0</span><span class="p">,</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">dq</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qnext</span><span class="p">,</span> <span class="n">err</span>
+
+<div class="viewcode-block" id="Kinematics.inverse_kinematics_one_finger"><a class="viewcode-back" href="../../api/pinocchio_utils.html#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_kinematics_one_finger</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">finger_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">tip_target_position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">joint_angles_guess</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.005</span><span class="p">,</span>
+        <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Inverse kinematics for a single finger.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            finger_idx: Index of the finger.</span>
+<span class="sd">            tip_target_positions: Target position for the finger tip in world</span>
+<span class="sd">                frame.</span>
+<span class="sd">            joint_angles_guess: Initial guess for the joint angles.</span>
+<span class="sd">            tolerance: Position error tolerance.  Stop if the error is less</span>
+<span class="sd">                then that.</span>
+<span class="sd">            max_iterations: Max. number of iterations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            First element is the joint configuration (for joints that are not</span>
+<span class="sd">            part of the specified finger, the values from the initial guess are</span>
+<span class="sd">            kept).  Second element is (x,y,z)-error of the tip position.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">joint_angles_guess</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iterations</span><span class="p">):</span>
+            <span class="n">q</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inverse_kinematics_step</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tip_link_ids</span><span class="p">[</span><span class="n">finger_idx</span><span class="p">],</span> <span class="n">tip_target_position</span><span class="p">,</span> <span class="n">q</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">err</span></div>
+
+<div class="viewcode-block" id="Kinematics.inverse_kinematics"><a class="viewcode-back" href="../../api/pinocchio_utils.html#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_kinematics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tip_target_positions</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">joint_angles_guess</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.005</span><span class="p">,</span>
+        <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Inverse kinematics for the whole manipulator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            tip_target_positions: List of finger tip target positions, one for</span>
+<span class="sd">                each finger.</span>
+<span class="sd">            joint_angles_guess: See :meth:`inverse_kinematics_one_finger`.</span>
+<span class="sd">            tolerance: See :meth:`inverse_kinematics_one_finger`.</span>
+<span class="sd">            max_iterations: See :meth:`inverse_kinematics_one_finger`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            First element is the joint configuration, second element is a list</span>
+<span class="sd">            of (x,y,z)-errors of the tip positions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">joint_angles_guess</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tip_target_positions</span><span class="p">):</span>
+            <span class="n">q</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_kinematics_one_finger</span><span class="p">(</span>
+                <span class="n">i</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">,</span> <span class="n">max_iterations</span>
+            <span class="p">)</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">errors</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Max Planck Institute for Intelligent Systems.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

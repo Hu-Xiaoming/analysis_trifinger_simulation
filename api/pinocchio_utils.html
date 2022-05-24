@@ -89,8 +89,95 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pinocchio-utils">
-<h1>Module pinocchio_utils<a class="headerlink" href="#module-pinocchio-utils" title="Permalink to this headline"></a></h1>
+  <section id="module-trifinger_simulation.pinocchio_utils">
+<span id="module-pinocchio-utils"></span><h1>Module pinocchio_utils<a class="headerlink" href="#module-trifinger_simulation.pinocchio_utils" title="Permalink to this headline"></a></h1>
+<p>Wrappers around Pinocchio for easy forward and inverse kinematics.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.pinocchio_utils.Kinematics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.pinocchio_utils.</span></span><span class="sig-name descname"><span class="pre">Kinematics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">finger_urdf_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip_link_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/pinocchio_utils.html#Kinematics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.pinocchio_utils.Kinematics" title="Permalink to this definition"></a></dt>
+<dd><p>Forward and inverse kinematics for arbitrary Finger robots.</p>
+<p>Provides forward and inverse kinematics functions for a Finger robot with
+arbitrarily many independent fingers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>finger_urdf_path</strong> (<em>str</em>) – Path to the URDF file describing the robot.</p></li>
+<li><p><strong>tip_link_names</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Names of the finger tip frames, one per finger.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.pinocchio_utils.Kinematics.forward_kinematics">
+<span class="sig-name descname"><span class="pre">forward_kinematics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joint_positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/pinocchio_utils.html#Kinematics.forward_kinematics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.pinocchio_utils.Kinematics.forward_kinematics" title="Permalink to this definition"></a></dt>
+<dd><p>Compute end-effector positions for the given joint configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>joint_positions</strong> – Flat list of angular joint positions.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of end-effector positions. Each position is given as an
+np.array with x,y,z positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><em>List</em>[numpy.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics">
+<span class="sig-name descname"><span class="pre">inverse_kinematics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tip_target_positions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_angles_guess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/pinocchio_utils.html#Kinematics.inverse_kinematics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics" title="Permalink to this definition"></a></dt>
+<dd><p>Inverse kinematics for the whole manipulator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tip_target_positions</strong> (<em>Iterable</em><em>[</em><em>numpy.ndarray</em><em>]</em>) – List of finger tip target positions, one for
+each finger.</p></li>
+<li><p><strong>joint_angles_guess</strong> (<em>numpy.ndarray</em>) – See <a class="reference internal" href="#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger" title="trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inverse_kinematics_one_finger()</span></code></a>.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – See <a class="reference internal" href="#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger" title="trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inverse_kinematics_one_finger()</span></code></a>.</p></li>
+<li><p><strong>max_iterations</strong> (<em>int</em>) – See <a class="reference internal" href="#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger" title="trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inverse_kinematics_one_finger()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>First element is the joint configuration, second element is a list
+of (x,y,z)-errors of the tip positions.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><em>Tuple</em>[numpy.ndarray, <em>List</em>[numpy.ndarray]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger">
+<span class="sig-name descname"><span class="pre">inverse_kinematics_one_finger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">finger_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tip_target_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint_angles_guess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/pinocchio_utils.html#Kinematics.inverse_kinematics_one_finger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.pinocchio_utils.Kinematics.inverse_kinematics_one_finger" title="Permalink to this definition"></a></dt>
+<dd><p>Inverse kinematics for a single finger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>finger_idx</strong> (<em>int</em>) – Index of the finger.</p></li>
+<li><p><strong>tip_target_positions</strong> – Target position for the finger tip in world
+frame.</p></li>
+<li><p><strong>joint_angles_guess</strong> (<em>numpy.ndarray</em>) – Initial guess for the joint angles.</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – Position error tolerance.  Stop if the error is less
+then that.</p></li>
+<li><p><strong>max_iterations</strong> (<em>int</em>) – Max. number of iterations.</p></li>
+<li><p><strong>tip_target_position</strong> (<em>numpy.ndarray</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>First element is the joint configuration (for joints that are not
+part of the specified finger, the values from the initial guess are
+kept).  Second element is (x,y,z)-error of the tip position.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><em>Tuple</em>[numpy.ndarray, numpy.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

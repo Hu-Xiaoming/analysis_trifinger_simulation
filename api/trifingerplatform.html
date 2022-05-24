@@ -94,17 +94,309 @@
              
   <section id="the-trifingerplatform-class">
 <h1>The TriFingerPlatform Class<a class="headerlink" href="#the-trifingerplatform-class" title="Permalink to this headline"></a></h1>
-<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">TriFingerPlatform</span></code> class provides access to the
+<p>The <a class="reference internal" href="#trifinger_simulation.TriFingerPlatform" title="trifinger_simulation.TriFingerPlatform"><code class="xref py py-class docutils literal notranslate"><span class="pre">TriFingerPlatform</span></code></a> class provides access to the
 simulation of the TriFinger platform using the same interface as for the real
 robot.</p>
 <p>For a detailed explanation of the software interface on the real robot, and the
 logic behind it, please check the <a class="reference external" href="https://arxiv.org/abs/2008.03596">paper</a>.</p>
 <section id="api-documentation">
 <h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.</span></span><span class="sig-name descname"><span class="pre">TriFingerPlatform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visualization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_robot_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_object_pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_cameras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ObjectType.COLORED_CUBE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriFingerPlatform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper around the simulation providing the same interface as
+<code class="docutils literal notranslate"><span class="pre">robot_interfaces::TriFingerPlatformFrontend</span></code>.</p>
+<p>The following methods of the robot_interfaces counterpart are not
+supported:</p>
+<ul class="simple">
+<li><p>get_robot_status()</p></li>
+<li><p>wait_until_timeindex()</p></li>
+</ul>
+<p>Initialize.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>visualization</strong> (<em>bool</em>) – Set to true to run visualization.</p></li>
+<li><p><strong>initial_robot_position</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Initial robot joint angles</p></li>
+<li><p><strong>initial_object_pose</strong> – Only if <code class="docutils literal notranslate"><span class="pre">object_type</span> <span class="pre">==</span> <span class="pre">COLORED_CUBE</span></code>:
+Initial pose for the manipulation object.  Can be any object
+with attributes <code class="docutils literal notranslate"><span class="pre">position</span></code> (x, y, z) and <code class="docutils literal notranslate"><span class="pre">orientation</span></code> (x,
+y, z, w).  If not set, a default pose is used.</p></li>
+<li><p><strong>enable_cameras</strong> (<em>bool</em>) – Set to true to enable rendered images in
+the camera observations.  If false camera observations are
+still available but the images will not be initialized.  By
+default this is disabled as rendering of images takes a lot of
+computational power.  Therefore the cameras should only be
+enabled if the images are actually used.</p></li>
+<li><p><strong>time_step_s</strong> (<em>float</em>) – Simulation time step duration in seconds.</p></li>
+<li><p><strong>object_type</strong> (<em>trifinger_simulation.trifinger_platform.ObjectType</em>) – Which type of object to load.  This also influences
+some other aspects: When using the cube, the camera observation
+will contain an attribute <code class="docutils literal notranslate"><span class="pre">object_pose</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visualization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_robot_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_object_pose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_cameras</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step_s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ObjectType.COLORED_CUBE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriFingerPlatform.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>visualization</strong> (<em>bool</em>) – Set to true to run visualization.</p></li>
+<li><p><strong>initial_robot_position</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Initial robot joint angles</p></li>
+<li><p><strong>initial_object_pose</strong> – Only if <code class="docutils literal notranslate"><span class="pre">object_type</span> <span class="pre">==</span> <span class="pre">COLORED_CUBE</span></code>:
+Initial pose for the manipulation object.  Can be any object
+with attributes <code class="docutils literal notranslate"><span class="pre">position</span></code> (x, y, z) and <code class="docutils literal notranslate"><span class="pre">orientation</span></code> (x,
+y, z, w).  If not set, a default pose is used.</p></li>
+<li><p><strong>enable_cameras</strong> (<em>bool</em>) – Set to true to enable rendered images in
+the camera observations.  If false camera observations are
+still available but the images will not be initialized.  By
+default this is disabled as rendering of images takes a lot of
+computational power.  Therefore the cameras should only be
+enabled if the images are actually used.</p></li>
+<li><p><strong>time_step_s</strong> (<em>float</em>) – Simulation time step duration in seconds.</p></li>
+<li><p><strong>object_type</strong> (<em>trifinger_simulation.trifinger_platform.ObjectType</em>) – Which type of object to load.  This also influences
+some other aspects: When using the cube, the camera observation
+will contain an attribute <code class="docutils literal notranslate"><span class="pre">object_pose</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.Action">
+<span class="sig-name descname"><span class="pre">Action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">torque</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.Action" title="Permalink to this definition"></a></dt>
+<dd><p>See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.Action" title="trifinger_simulation.SimFinger.Action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.Action()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.append_desired_action">
+<span class="sig-name descname"><span class="pre">append_desired_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriFingerPlatform.append_desired_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.append_desired_action" title="Permalink to this definition"></a></dt>
+<dd><p>See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.append_desired_action" title="trifinger_simulation.SimFinger.append_desired_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.append_desired_action()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.get_current_timeindex">
+<span class="sig-name descname"><span class="pre">get_current_timeindex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.get_current_timeindex" title="Permalink to this definition"></a></dt>
+<dd><p>See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.get_current_timeindex" title="trifinger_simulation.SimFinger.get_current_timeindex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.get_current_timeindex()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.get_timestamp_ms">
+<span class="sig-name descname"><span class="pre">get_timestamp_ms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.get_timestamp_ms" title="Permalink to this definition"></a></dt>
+<dd><p>See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.get_timestamp_ms" title="trifinger_simulation.SimFinger.get_timestamp_ms"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.get_timestamp_ms()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.get_desired_action">
+<span class="sig-name descname"><span class="pre">get_desired_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.get_desired_action" title="Permalink to this definition"></a></dt>
+<dd><p>See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.get_desired_action" title="trifinger_simulation.SimFinger.get_desired_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.get_desired_action()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.get_applied_action">
+<span class="sig-name descname"><span class="pre">get_applied_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.get_applied_action" title="Permalink to this definition"></a></dt>
+<dd><p>See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.get_applied_action" title="trifinger_simulation.SimFinger.get_applied_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.get_applied_action()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.get_robot_observation">
+<span class="sig-name descname"><span class="pre">get_robot_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.get_robot_observation" title="Permalink to this definition"></a></dt>
+<dd><p>Get observation of the robot state (joint angles, torques, etc.).
+See <a class="reference internal" href="sim_finger.html#trifinger_simulation.SimFinger.get_observation" title="trifinger_simulation.SimFinger.get_observation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trifinger_simulation.SimFinger.get_observation()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.get_camera_observation">
+<span class="sig-name descname"><span class="pre">get_camera_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriFingerPlatform.get_camera_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.get_camera_observation" title="Permalink to this definition"></a></dt>
+<dd><p>Get camera observation at time step t.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Actual images are only rendered if the class was created with
+<cite>enable_cameras=True</cite> in the constructor, otherwise the images in
+the observation are set to None.  Other fields are still valid,
+though.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – The time index of the step for which the observation is
+requested.  Only the value returned by the last call of
+<a class="reference internal" href="#trifinger_simulation.TriFingerPlatform.append_desired_action" title="trifinger_simulation.TriFingerPlatform.append_desired_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">append_desired_action()</span></code></a> is valid.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Observations of the three cameras.  Depending of the object type
+used, this may also contain the object pose.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If invalid time index <code class="docutils literal notranslate"><span class="pre">t</span></code> is passed.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Union</em>[<a class="reference internal" href="#trifinger_simulation.TriCameraObservation" title="trifinger_simulation.trifinger_platform.TriCameraObservation">trifinger_simulation.trifinger_platform.TriCameraObservation</a>, <a class="reference internal" href="#trifinger_simulation.TriCameraObjectObservation" title="trifinger_simulation.trifinger_platform.TriCameraObjectObservation">trifinger_simulation.trifinger_platform.TriCameraObjectObservation</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.TriFingerPlatform.store_action_log">
+<span class="sig-name descname"><span class="pre">store_action_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriFingerPlatform.store_action_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriFingerPlatform.store_action_log" title="Permalink to this definition"></a></dt>
+<dd><p>Store the action log to a JSON file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to the JSON file to which the log shall be
+written.  If the file exists already, it will be overwritten.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <hr class="docutils" />
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.ObjectPose">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.</span></span><span class="sig-name descname"><span class="pre">ObjectPose</span></span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#ObjectPose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.ObjectPose" title="Permalink to this definition"></a></dt>
+<dd><p>A pure-python copy of trifinger_object_tracking::ObjectPose.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.ObjectPose.confidence">
+<span class="sig-name descname"><span class="pre">confidence</span></span><a class="headerlink" href="#trifinger_simulation.ObjectPose.confidence" title="Permalink to this definition"></a></dt>
+<dd><p>Estimate of the confidence for this pose observation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.ObjectPose.orientation">
+<span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#trifinger_simulation.ObjectPose.orientation" title="Permalink to this definition"></a></dt>
+<dd><p>Orientation of the object as (x, y, z, w) quaternion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.ObjectPose.position">
+<span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#trifinger_simulation.ObjectPose.position" title="Permalink to this definition"></a></dt>
+<dd><p>Position (x, y, z) of the object.  Units are meters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.ObjectPose.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#trifinger_simulation.ObjectPose.timestamp" title="Permalink to this definition"></a></dt>
+<dd><p>Timestamp when the pose was observed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <hr class="docutils" />
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.CameraObservation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.</span></span><span class="sig-name descname"><span class="pre">CameraObservation</span></span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#CameraObservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.CameraObservation" title="Permalink to this definition"></a></dt>
+<dd><p>Pure-python copy of trifinger_cameras.camera.CameraObservation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.CameraObservation.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#trifinger_simulation.CameraObservation.image" title="Permalink to this definition"></a></dt>
+<dd><p>The image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.CameraObservation.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#trifinger_simulation.CameraObservation.timestamp" title="Permalink to this definition"></a></dt>
+<dd><p>Timestamp when the image was received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <hr class="docutils" />
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.TriCameraObservation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.</span></span><span class="sig-name descname"><span class="pre">TriCameraObservation</span></span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriCameraObservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriCameraObservation" title="Permalink to this definition"></a></dt>
+<dd><p>Python version of trifinger_cameras::TriCameraObservation.</p>
+<p>This is a pure-python implementation of
+trifinger_cameras::TriCameraObservation, so we don’t need to depend on
+trifinger_cameras here.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.TriCameraObservation.cameras">
+<span class="sig-name descname"><span class="pre">cameras</span></span><a class="headerlink" href="#trifinger_simulation.TriCameraObservation.cameras" title="Permalink to this definition"></a></dt>
+<dd><p>List of observations of cameras
+“camera60”, “camera180” and “camera300” (in this order).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#trifinger_simulation.CameraObservation" title="trifinger_simulation.CameraObservation"><code class="xref py py-class docutils literal notranslate"><span class="pre">CameraObservation</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <hr class="docutils" />
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.TriCameraObjectObservation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.</span></span><span class="sig-name descname"><span class="pre">TriCameraObjectObservation</span></span><a class="reference internal" href="../_modules/trifinger_simulation/trifinger_platform.html#TriCameraObjectObservation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.TriCameraObjectObservation" title="Permalink to this definition"></a></dt>
+<dd><p>Python version of trifinger_object_tracking::TriCameraObjectObservation.</p>
+<p>This is a pure-python implementation of
+trifinger_object_tracking::TriCameraObjectObservation, so we don’t need to
+depend on trifinger_object_tracking here.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.TriCameraObjectObservation.cameras">
+<span class="sig-name descname"><span class="pre">cameras</span></span><a class="headerlink" href="#trifinger_simulation.TriCameraObjectObservation.cameras" title="Permalink to this definition"></a></dt>
+<dd><p>List of observations of cameras
+“camera60”, “camera180” and “camera300” (in this order).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#trifinger_simulation.CameraObservation" title="trifinger_simulation.CameraObservation"><code class="xref py py-class docutils literal notranslate"><span class="pre">CameraObservation</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.TriCameraObjectObservation.filtered_object_pose">
+<span class="sig-name descname"><span class="pre">filtered_object_pose</span></span><a class="headerlink" href="#trifinger_simulation.TriCameraObjectObservation.filtered_object_pose" title="Permalink to this definition"></a></dt>
+<dd><p>Filtered pose of the object in world coordinates.  In
+simulation, this is the same as the unfiltered object_pose.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#trifinger_simulation.ObjectPose" title="trifinger_simulation.ObjectPose">ObjectPose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.TriCameraObjectObservation.object_pose">
+<span class="sig-name descname"><span class="pre">object_pose</span></span><a class="headerlink" href="#trifinger_simulation.TriCameraObjectObservation.object_pose" title="Permalink to this definition"></a></dt>
+<dd><p>Pose of the object in world coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#trifinger_simulation.ObjectPose" title="trifinger_simulation.ObjectPose">ObjectPose</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

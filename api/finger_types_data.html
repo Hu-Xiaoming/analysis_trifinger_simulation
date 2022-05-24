@@ -88,8 +88,142 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-finger-types-data">
-<h1>Module finger_types_data<a class="headerlink" href="#module-finger-types-data" title="Permalink to this headline"></a></h1>
+  <section id="module-trifinger_simulation.finger_types_data">
+<span id="module-finger-types-data"></span><h1>Module finger_types_data<a class="headerlink" href="#module-trifinger_simulation.finger_types_data" title="Permalink to this headline"></a></h1>
+<p>Get model information for the different Finger types.</p>
+<p>The simulation supports <a class="reference internal" href="../getting_started/finger_types.html#finger-types"><span class="std std-ref">different types of (Tri-)Finger robots</span></a> which all follow the same basic idea but have different
+models.  The functions of this module help getting the type-specific
+information.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.FingerTypesDataFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.finger_types_data.</span></span><span class="sig-name descname"><span class="pre">FingerTypesDataFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urdf_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_fingers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_joint_positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/finger_types_data.html#FingerTypesDataFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.finger_types_data.FingerTypesDataFormat" title="Permalink to this definition"></a></dt>
+<dd><p>Describes the format for the finger type data,
+comprising of the corresponding urdf, and the
+number of fingers.</p>
+<p>Create new instance of FingerTypesDataFormat(urdf_file, number_of_fingers, initial_joint_positions)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>urdf_file</strong> (<em>str</em>) – </p></li>
+<li><p><strong>number_of_fingers</strong> (<em>int</em>) – </p></li>
+<li><p><strong>initial_joint_positions</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.FingerTypesDataFormat.urdf_file">
+<span class="sig-name descname"><span class="pre">urdf_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#trifinger_simulation.finger_types_data.FingerTypesDataFormat.urdf_file" title="Permalink to this definition"></a></dt>
+<dd><p>Path to the URDF file (relative to the URDF base directory)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.FingerTypesDataFormat.number_of_fingers">
+<span class="sig-name descname"><span class="pre">number_of_fingers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#trifinger_simulation.finger_types_data.FingerTypesDataFormat.number_of_fingers" title="Permalink to this definition"></a></dt>
+<dd><p>Number of fingers the robot has.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.FingerTypesDataFormat.initial_joint_positions">
+<span class="sig-name descname"><span class="pre">initial_joint_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#trifinger_simulation.finger_types_data.FingerTypesDataFormat.initial_joint_positions" title="Permalink to this definition"></a></dt>
+<dd><p>Initial joint positions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.get_valid_finger_types">
+<span class="sig-prename descclassname"><span class="pre">trifinger_simulation.finger_types_data.</span></span><span class="sig-name descname"><span class="pre">get_valid_finger_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/finger_types_data.html#get_valid_finger_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.finger_types_data.get_valid_finger_types" title="Permalink to this definition"></a></dt>
+<dd><p>Get list of supported finger types.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of supported finger types.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>KeysView</em>[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.check_finger_type">
+<span class="sig-prename descclassname"><span class="pre">trifinger_simulation.finger_types_data.</span></span><span class="sig-name descname"><span class="pre">check_finger_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/finger_types_data.html#check_finger_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.finger_types_data.check_finger_type" title="Permalink to this definition"></a></dt>
+<dd><p>Check if <em>name</em> is a valid finger type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the finger type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The name if it is valid.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>name</em> is not a valid finger type.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.get_finger_urdf">
+<span class="sig-prename descclassname"><span class="pre">trifinger_simulation.finger_types_data.</span></span><span class="sig-name descname"><span class="pre">get_finger_urdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/finger_types_data.html#get_finger_urdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.finger_types_data.get_finger_urdf" title="Permalink to this definition"></a></dt>
+<dd><p>Get the name of the URDF-file with the model of the specified finger type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the finger type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The name of the URDF file in the <code class="docutils literal notranslate"><span class="pre">robot_properties_fingers</span></code> package.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>name</em> is not a valid finger type.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.get_number_of_fingers">
+<span class="sig-prename descclassname"><span class="pre">trifinger_simulation.finger_types_data.</span></span><span class="sig-name descname"><span class="pre">get_number_of_fingers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/finger_types_data.html#get_number_of_fingers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.finger_types_data.get_number_of_fingers" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of fingers of the specified finger type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the finger type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Number of fingers.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>name</em> is not a valid finger type.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="trifinger_simulation.finger_types_data.get_initial_joint_positions">
+<span class="sig-prename descclassname"><span class="pre">trifinger_simulation.finger_types_data.</span></span><span class="sig-name descname"><span class="pre">get_initial_joint_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/finger_types_data.html#get_initial_joint_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.finger_types_data.get_initial_joint_positions" title="Permalink to this definition"></a></dt>
+<dd><p>Get initial joint positions of the specified finger type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the finger type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Angular joint positions.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>name</em> is not a valid finger type.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Sequence</em>[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

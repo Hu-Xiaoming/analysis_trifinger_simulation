@@ -89,8 +89,171 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-collision-objects">
-<h1>Module collision_objects<a class="headerlink" href="#module-collision-objects" title="Permalink to this headline"></a></h1>
+  <section id="module-trifinger_simulation.collision_objects">
+<span id="module-collision-objects"></span><h1>Module collision_objects<a class="headerlink" href="#module-trifinger_simulation.collision_objects" title="Permalink to this headline"></a></h1>
+<p>Provides classes/functions for loading objects into the simulation environment.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.ColoredCubeV2">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.collision_objects.</span></span><span class="sig-name descname"><span class="pre">ColoredCubeV2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pybullet_client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/collision_objects.html#ColoredCubeV2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.collision_objects.ColoredCubeV2" title="Permalink to this definition"></a></dt>
+<dd><p>Model of the colored “Cube v2”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Position at which the cube is spawned.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Orientation with which the cube is spawned.</p></li>
+<li><p><strong>pybullet_client_id</strong> (<em>int</em>) – Optional ID of the pybullet client.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.ColoredCubeV2.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.collision_objects.ColoredCubeV2.get_state" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Current position and orientation of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Tuple</em>[<em>List</em>[float], <em>List</em>[float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.ColoredCubeV2.set_state">
+<span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.collision_objects.ColoredCubeV2.set_state" title="Permalink to this definition"></a></dt>
+<dd><p>Resets the object to the provided position and orientation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – New position.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – New orientation (quaternion).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.Cube">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.collision_objects.</span></span><span class="sig-name descname"><span class="pre">Cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.15,</span> <span class="pre">0.0,</span> <span class="pre">0.0425]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">half_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0325</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_rgba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pybullet_client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/collision_objects.html#Cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.collision_objects.Cube" title="Permalink to this definition"></a></dt>
+<dd><p>A cube object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Initial xyz-position of the cuboid.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Initial orientation quaternion (x, y, z, w) of the
+cuboid.</p></li>
+<li><p><strong>half_extents</strong> – Half-extends of the cuboid in x/y/z-direction.</p></li>
+<li><p><strong>mass</strong> (<em>float</em>) – Mass of the cuboid in kg.  Set to 0 for a static object.</p></li>
+<li><p><strong>color_rgba</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Optional tuple of RGBA colour.</p></li>
+<li><p><strong>pybullet_client_id</strong> (<em>int</em>) – Optional ID of the pybullet client.</p></li>
+<li><p><strong>half_width</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.Cube.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.collision_objects.Cube.get_state" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Current position and orientation of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Tuple</em>[<em>List</em>[float], <em>List</em>[float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.Cube.set_state">
+<span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.collision_objects.Cube.set_state" title="Permalink to this definition"></a></dt>
+<dd><p>Resets the object to the provided position and orientation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – New position.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – New orientation (quaternion).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.Cuboid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">trifinger_simulation.collision_objects.</span></span><span class="sig-name descname"><span class="pre">Cuboid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">half_extents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_rgba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pybullet_client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/collision_objects.html#Cuboid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.collision_objects.Cuboid" title="Permalink to this definition"></a></dt>
+<dd><p>A cuboid which can be interacted with.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Initial xyz-position of the cuboid.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Initial orientation quaternion (x, y, z, w) of the
+cuboid.</p></li>
+<li><p><strong>half_extents</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Half-extends of the cuboid in x/y/z-direction.</p></li>
+<li><p><strong>mass</strong> (<em>float</em>) – Mass of the cuboid in kg.  Set to 0 for a static object.</p></li>
+<li><p><strong>color_rgba</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Optional tuple of RGBA colour.</p></li>
+<li><p><strong>pybullet_client_id</strong> (<em>int</em>) – Optional ID of the pybullet client.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.Cuboid.get_state">
+<span class="sig-name descname"><span class="pre">get_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.collision_objects.Cuboid.get_state" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Current position and orientation of the object.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Tuple</em>[<em>List</em>[float], <em>List</em>[float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.Cuboid.set_state">
+<span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#trifinger_simulation.collision_objects.Cuboid.set_state" title="Permalink to this definition"></a></dt>
+<dd><p>Resets the object to the provided position and orientation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – New position.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – New orientation (quaternion).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="trifinger_simulation.collision_objects.import_mesh">
+<span class="sig-prename descclassname"><span class="pre">trifinger_simulation.collision_objects.</span></span><span class="sig-name descname"><span class="pre">import_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_concave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_rgba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pybullet_client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/trifinger_simulation/collision_objects.html#import_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#trifinger_simulation.collision_objects.import_mesh" title="Permalink to this definition"></a></dt>
+<dd><p>Create a collision object based on a mesh file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh_file_path</strong> (<em>str</em>) – Path to the mesh file.</p></li>
+<li><p><strong>position</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Position (x, y, z) of the object.</p></li>
+<li><p><strong>orientation</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Quaternion defining the orientation of the object.</p></li>
+<li><p><strong>is_concave</strong> (<em>bool</em>) – If set to true, the object is loaded as concav shape.
+Only use this for static objects.</p></li>
+<li><p><strong>color_rgba</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Optional colour of the object given as a list of RGBA
+values in the interval [0, 1].  If not specified, pyBullet
+assigns a random colour.</p></li>
+<li><p><strong>pybullet_client_id</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ID of the created object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
