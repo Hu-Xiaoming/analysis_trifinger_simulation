@@ -137,7 +137,7 @@ class TriFingerReach(gym.Env):
         #: a logger to enable logging of observations if desired
         self.logger = DataLogger()
 
-        # sets up smooothing
+        # sets up smoothing
         if "is_test" in smoothing_params:
             self.smoothing_start_episode = 0
             self.smoothing_alpha = smoothing_params["final_alpha"]
